@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Application.Activities;
 using Application.Core;
+using Application.Interfaces;
+using Infrastracture.Security;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -36,6 +38,7 @@ namespace API.Extensions
             });
 
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+            services.AddScoped<IUserAccessor, UserAccessor>();
 
             return services;
         }
