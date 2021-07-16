@@ -14,6 +14,7 @@ namespace Application.Core
     {
         public MappingProfiles()
         {
+            string currentUsername = null;
             CreateMap<Activity, Activity>();
             CreateMap<Activity, ActivityDto>()
                 .ForMember(x => x.HostUsername,
@@ -32,14 +33,32 @@ namespace Application.Core
                 ).ForMember(i => i.Image,
                     x => x
                         .MapFrom(p => p.AppUser.Photos
-                            .FirstOrDefault(m => m.IsMain).Url));
+                            .FirstOrDefault(m => m.IsMain).Url))
+                .ForMember(f => f.FollowersCount,
+                    o => o
+                        .MapFrom(s => s.AppUser.Followers.Count))
+                .ForMember(f => f.FollowingCount,
+                    o => o
+                        .MapFrom(s => s.AppUser.Followings.Count))
+                .ForMember(d => d.Following, o => o
+                    .MapFrom(s => s.AppUser.Followers
+                        .Any(x => x.Observer.UserName == currentUsername)));
 
 
             CreateMap<AppUser, Profiles.Profile>()
                 .ForMember(i => i.Image,
                     x => x
                         .MapFrom(p => p.Photos
-                            .FirstOrDefault(m => m.IsMain).Url));
+                            .FirstOrDefault(m => m.IsMain).Url))
+                .ForMember(f => f.FollowersCount,
+                    o => o
+                        .MapFrom(s => s.Followers.Count))
+                .ForMember(f => f.FollowingCount,
+                    o => o
+                        .MapFrom(s => s.Followings.Count))
+                .ForMember(d => d.Following, o => o
+                    .MapFrom(s => s.Followers
+                        .Any(x => x.Observer.UserName == currentUsername)));
 
             CreateMap<Comment, CommentDto>()
                 .ForMember(u => u.Username,

@@ -95,7 +95,10 @@ const Profiles = {
     }, 
     setMainPhoto: (id: string) => requests.post(`/photos/${id}/setMain`, {}), 
     deletePhoto: (id: string) => requests.del(`photos/${id}`),
-    editProfile: (profile: ProfileFormValues) => requests.put<void>(`/profiles/`, profile)
+    editProfile: (profile: ProfileFormValues) => requests.put<void>(`/profiles/`, profile),
+    updateFollowing: (username: string) => requests.post<void>(`/follow/${username}`, {}),
+    listFollowings: (username: string, predicate: string) => 
+        requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`)
 }
 
 
