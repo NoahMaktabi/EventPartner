@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { history } from "../..";
 import { Activity, ActivityFormValues } from "../models/activity";
 import { PaginatedResult } from "../models/pagination";
-import { Profile, ProfileFormValues } from "../models/profile";
+import { Profile, ProfileFormValues, UserActivity } from "../models/profile";
 import { User, UserFormValues } from "../models/user";
 import { store } from "../stores/store";
 
@@ -104,7 +104,9 @@ const Profiles = {
     editProfile: (profile: ProfileFormValues) => requests.put<void>(`/profiles/`, profile),
     updateFollowing: (username: string) => requests.post<void>(`/follow/${username}`, {}),
     listFollowings: (username: string, predicate: string) => 
-        requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`)
+        requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`),
+    getUserActivity: (username: string, predicate: string) => 
+    requests.get<UserActivity[]>(`/profiles/${username}/activities?predicate=${predicate}`)
 }
 
 

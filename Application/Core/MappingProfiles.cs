@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.Activities;
 using Application.Comments;
-using AutoMapper;
+using Application.Profiles;
 using Domain;
+using Profile = AutoMapper.Profile;
 
 namespace Application.Core
 {
@@ -67,6 +68,18 @@ namespace Application.Core
                     x => x.MapFrom(u => u.Author.DisplayName))
                 .ForMember(u => u.Image,
                     x => x.MapFrom(u => u.Author.Photos.FirstOrDefault(p => p.IsMain).Url));
+
+            CreateMap<ActivityAttendee, UserActivityDto>()
+                .ForMember(d => d.Title,
+                    o => o.MapFrom(x => x.Activity.Title))
+                .ForMember(d => d.Category,
+                    o => o.MapFrom(x => x.Activity.Category))
+                .ForMember(d => d.Date,
+                    o => o.MapFrom(x => x.Activity.Date))
+                .ForMember(d => d.HostUsername,
+                    o => o
+                        .MapFrom(x => x.Activity.Attendees
+                            .FirstOrDefault(h => h.IsHost).AppUser.UserName));
 
         }
     }
