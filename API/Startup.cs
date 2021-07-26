@@ -60,7 +60,8 @@ namespace API
                 .FrameAncestors(s => s.Self())
                 .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com", "data:",
                     "https://www.facebook.com",
-                    "https://platform-lookaside.fbsbx.com"))
+                    "https://platform-lookaside.fbsbx.com", 
+                    "https://event-partner.herokuapp.com"))
                 .ScriptSources(s => s.Self()
                     .CustomSources("sha256-slR988OyzRz93iUr9ItzvdcRH1+r2ieb4AN7Anq34iM=", 
                         "https://connect.facebook.net", 
