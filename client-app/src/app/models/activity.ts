@@ -22,7 +22,9 @@ export interface Activity {
     }
   }
 
+  // eslint-disable-next-line
   export class ActivityFormValues {
+    // eslint-disable-next-line
     id?: string = undefined;
     title: string = '';
     category: string = '';
@@ -31,6 +33,7 @@ export interface Activity {
     city: string = '';
     venue: string = '';
 
+    // eslint-disable-next-line
     constructor(activity?: ActivityFormValues) {
       if (activity) {
         this.id = activity.id;
