@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using API.DTOs;
 using API.Services;
+using CloudinaryDotNet.Actions;
 using Domain;
+using Flurl.Http;
 using Infrastracture.Email;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,6 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace API.Controllers
@@ -29,6 +34,7 @@ namespace API.Controllers
         private readonly TokenService _tokenService;
         private readonly IConfiguration _config;
         private readonly EmailSender _emailSender;
+        private readonly ILogger<AccountController> _logger;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly HttpClient _httpClient;
 
@@ -37,12 +43,14 @@ namespace API.Controllers
             TokenService tokenService,
             IConfiguration config,
             EmailSender emailSender,
+            ILogger<AccountController> logger,
             SignInManager<AppUser> signInManager)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _config = config;
             _emailSender = emailSender;
+            _logger = logger;
             _signInManager = signInManager;
             _httpClient = new HttpClient
             {
@@ -57,23 +65,32 @@ namespace API.Controllers
             var user = await _userManager.Users.Include(p => p.Photos)
                 .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
 
-            if (user == null) return Unauthorized("Invalid Email");
+            if (user == null)
+            {
+                _logger.Log(LogLevel.Trace, "Failed to login, user not found");
+                return Unauthorized("Invalid Email");
+            }
 
             if (user.UserName == "bob" || user.UserName == "tom" || user.UserName == "jane")
                 user.EmailConfirmed = true;
 
-            if (!user.EmailConfirmed) return Unauthorized("Email not confirmed");
+            if (!user.EmailConfirmed)
+            {
+                _logger.Log(LogLevel.Trace, "Failed to login, Email not confirmed, username is: " + user.UserName);
+                return Unauthorized("Email not confirmed");
+            }
             
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
-                await SetRefreshToken(user);
-                return CreateUserObject(user);
+                _logger.Log(LogLevel.Trace, "Failed to login, Wrong Password, username is: " + user.UserName);
+                return Unauthorized("Invalid Password");
             }
+            await SetRefreshToken(user);
+            return CreateUserObject(user);
 
-            return Unauthorized("Invalid Password");
         }
 
         [AllowAnonymous]
@@ -202,10 +219,9 @@ namespace API.Controllers
                 DisplayName = (string)fbInfo.name,
                 Email = (string)fbInfo.email,
                 UserName = (string)fbInfo.id,
-                Photos = new List<Photo> {new Photo {Id = "fb_" + (string)fbInfo.id, Url = (string)fbInfo.picture.data.url, IsMain = true}}
+                Photos = new List<Photo> {new Photo {Id = "fb_" + (string)fbInfo.id, Url = (string)fbInfo.picture.data.url, IsMain = true}},
+                EmailConfirmed = true,
             };
-
-            user.EmailConfirmed = true;
 
             var result = await _userManager.CreateAsync(user);
 
@@ -213,6 +229,62 @@ namespace API.Controllers
 
             await SetRefreshToken(user);
             return CreateUserObject(user);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("githubLogin/{code}")]
+        public async Task<ActionResult<UserDto>> GithubLogin(string code)
+        {
+            var accessToken = await GetGithubAccessToken(code);
+            if (string.IsNullOrEmpty(accessToken)) return Unauthorized();
+
+
+            var result = await "https://api.github.com/user"
+                .WithHeader("Authorization", $"token {accessToken}")
+                .WithHeader("User-Agent", "request")
+                .GetJsonAsync<GithubUser>();
+
+            if (result == null) return Unauthorized();
+
+            var username = result.login;
+
+            var user = await _userManager.Users.Include(p => p.Photos)
+                .FirstOrDefaultAsync(x => x.UserName == username);
+
+            if (user != null) return CreateUserObject(user);
+
+            var email = string.IsNullOrEmpty(result.email) ?  $"{result.login}@github.com" : result.email;
+            user = new AppUser()
+            {
+                DisplayName = result.name,
+                Email = email,
+                EmailConfirmed = true,
+                UserName = result.login,
+                Photos = new List<Photo>() {new Photo() {Id = "gh_" + result.node_id, Url = result.avatar_url, IsMain = true}}
+            };
+
+            var userCreated = await _userManager.CreateAsync(user);
+
+            if (!userCreated.Succeeded) return BadRequest("Problem creating user account");
+
+            await SetRefreshToken(user);
+            return CreateUserObject(user);
+        }
+
+        private async Task<string> GetGithubAccessToken(string code)
+        {
+            var clientId = _config["Github:ClientId"];
+            var clientSecret = _config["Github:ClientSecret"];
+            var url =
+                $"https://github.com/login/oauth/access_token?code={code}&client_id={clientId}&client_secret={clientSecret}";
+
+            var tokenResult = await url
+                .WithHeader("Accept", "application/json")
+                .PostAsync()
+                .ReceiveJson<GithubAccessToken>();
+            
+            var accessToken = tokenResult.access_token;
+            return accessToken;
         }
 
 

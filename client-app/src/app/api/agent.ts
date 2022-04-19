@@ -100,7 +100,9 @@ const Account = {
     verifyEmail: (token: string, email: string) => 
         requests.post<void>(`/account/verifyEmail?token=${token}&email=${email}`, {}),
     resendEmailConfirm: (email: string) => 
-        requests.get(`/account/resendEmailConfirmationLink?email=${email}`)
+        requests.get(`/account/resendEmailConfirmationLink?email=${email}`),
+
+    ghLogin: (code: string) => requests.post<User>(`/account/githubLogin/${code}`, {})
 }
 
 const Profiles = {

@@ -8,6 +8,7 @@ export default class UserStore {
     user: User | null = null;
     fbAccessToken: string | null = null;
     fbLoading = false;
+    githubLoading = false;
     refreshTokenTimeout: any;
 
     constructor() {
@@ -107,6 +108,26 @@ export default class UserStore {
             window.FB.login(response => {
                 apiLogin(response.authResponse.accessToken);
             }, {scope: 'public_profile,email'})
+        }
+    }
+
+    githubLogin = async (code: string) => {
+        this.githubLoading = true; 
+        try {
+            const result = await agent.Account.ghLogin(code);
+            runInAction(() => {
+                store.commonStore.setToken(result.token);
+                this.startRefreshTokenTimer(result);
+                this.user = result;
+                this.githubLoading = false;
+            })
+            history.push('/activities');
+        } catch (error) {
+            console.log(error);
+            
+            runInAction(() => {
+                this.githubLoading = false;
+            })
         }
     }
 

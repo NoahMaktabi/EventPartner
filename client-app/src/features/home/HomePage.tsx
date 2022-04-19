@@ -8,6 +8,16 @@ import RegisterForm from "../users/RegisterForm";
 
 export default observer(function HomePage() {
     const { userStore, modalStore } = useStore();
+    const url = window.location.href;
+    const hasCode = url.includes("?code=");
+    if (hasCode) {
+        const newUrl = url.split("?code=");
+        const code = newUrl[1]
+        userStore.githubLogin(code);
+    }
+
+
+
     return (
         <Segment inverted textAlign='center' vertical className='masthead' >
             <Container text >
@@ -31,13 +41,23 @@ export default observer(function HomePage() {
                             size='huge' inverted >Register
                         </Button>
                         <Divider horizontal inverted >Or</Divider>
-                        <Button
+                        {/* <Button
                             size='huge'
                             loading={userStore.fbLoading}
                             inverted
                             color='facebook'
                             content='Login with Facebook'
                             onClick={userStore.facebookLogin}
+                        /> */}
+                        <Button
+                            size='huge'
+                            loading={userStore.githubLoading}
+                            inverted
+                            icon='github'
+                            color='facebook'
+                            content='Login with Github'
+                            as='a'
+                            href='https://github.com/login/oauth/authorize?client_id=7aa057fd6473aad82e63'
                         />
                     </>
 

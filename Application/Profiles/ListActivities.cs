@@ -26,7 +26,6 @@ namespace Application.Profiles
         {
             private readonly DataContext _context;
             private readonly IMapper _mapper;
-            private readonly IUserAccessor _userAccessor;
 
             public Handler(DataContext context, IMapper mapper)
             {

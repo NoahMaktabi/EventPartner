@@ -21,15 +21,13 @@ import ConfirmEmail from '../../features/users/ConfirmEmail';
 
 function App() {
   const location = useLocation();
-  const {commonStore, userStore} = useStore();
+  const { commonStore, userStore } = useStore();
 
   useEffect(() => {
     if (commonStore.token) {
       userStore.getUser().finally(() => commonStore.setAppLoaded());
     } else {
-      userStore.getFacebookLoginStatus().then(() => {
-        commonStore.setAppLoaded();
-      })
+      commonStore.setAppLoaded();
     }
   }, [commonStore, userStore])
 

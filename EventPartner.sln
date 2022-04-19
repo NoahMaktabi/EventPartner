@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31321.278
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{687D87A8-83E9-43FD-863D-016881B3CE10}"
 EndProject
@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistence", "Persistence\
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "client-app", "client-app\", "{6EFC44AA-7129-46A0-A363-289298371233}"
 	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5"
 		Debug.AspNetCompiler.VirtualPath = "/localhost_52222"
 		Debug.AspNetCompiler.PhysicalPath = "client-app\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_52222\"
@@ -32,7 +32,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "client-app", "client-app\",
 		SlnRelativePath = "client-app\"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastracture", "Infrastracture\Infrastracture.csproj", "{2B2EABE2-34ED-453D-8DC6-D996A918471E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastracture", "Infrastracture\Infrastracture.csproj", "{2B2EABE2-34ED-453D-8DC6-D996A918471E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

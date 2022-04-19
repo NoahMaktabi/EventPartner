@@ -23,7 +23,16 @@ namespace API.Extensions
         {
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "API", Version = "v1",
+                    Contact = new OpenApiContact()
+                    {
+                        Email = "noah.maktabi@icloud.com",
+                        Name = "Noah Maktabi"
+                    },
+                    Description = "App to create events."
+                });
             });
 
             services.AddDbContext<DataContext>(options =>
@@ -37,8 +46,11 @@ namespace API.Extensions
                 if (env == "Development")
                 {
                     // Use connection string from file.
-                    connStr = config.GetConnectionString("DefaultConnection");
+                    //connStr = config.GetConnectionString("DefaultConnection");
+                    connStr = config.GetConnectionString("SqlServer");
+                    options.UseSqlServer(connStr);
                 }
+                //If in production, use NPGSQL
                 else
                 {
                     // Use connection string provided at runtime by Heroku.
@@ -56,11 +68,11 @@ namespace API.Extensions
                     var pgPort = pgHostPort.Split(":")[1];
 
                     connStr = $"Server={pgHost};Port={pgPort};User Id={pgUser};Password={pgPass};Database={pgDb}; SSL Mode=Require; Trust Server Certificate=true";
+                    options.UseNpgsql(connStr);
                 }
 
                 // Whether the connection string came from the local development configuration file
                 // or from the environment variable from Heroku, use it to set up your DbContext.
-                options.UseNpgsql(connStr);
             });
 
             services.AddMediatR(typeof(List.Handler).Assembly);
