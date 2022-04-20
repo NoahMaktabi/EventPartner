@@ -58,6 +58,11 @@ namespace API.Controllers
             };
         }
 
+        /// <summary>
+        /// Login user and return a token to use for authorization, also returns display name, username and image. 
+        /// </summary>
+        /// <param name="loginDto">A model containing email and password</param>
+        /// <returns>Token</returns>
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
@@ -93,6 +98,11 @@ namespace API.Controllers
 
         }
 
+        /// <summary>
+        /// Register a user provided a model containing info about the user. The method also send a verification link to the provided email.
+        /// </summary>
+        /// <param name="registerDto">Model containing email, username, displayName and password</param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
@@ -134,6 +144,12 @@ namespace API.Controllers
             return Ok("Your account is created. Please verify your email");
         }
 
+        /// <summary>
+        /// Verify email address, this method is called when the user clicks on the link in the verification mail and verify the email in the DB
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="email"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("verifyEmail")]
         public async Task<IActionResult> VerifyEmail(string token, string email)
@@ -151,6 +167,11 @@ namespace API.Controllers
             return Ok("Email is confirmed. You can now login");
         }
 
+        /// <summary>
+        /// Method to resend an email verification link in case the first link is lost
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpGet("resendEmailConfirmationLink")]
         public async Task<IActionResult> ResendEmailConfirmationLink(string email)
@@ -174,7 +195,10 @@ namespace API.Controllers
         }
 
 
-
+        /// <summary>
+        /// Method to get info about the current logged in user provided a valid token
+        /// </summary>
+        /// <returns></returns>
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<UserDto>> GetCurrentUser()
@@ -186,6 +210,11 @@ namespace API.Controllers
             return CreateUserObject(user);
         }
 
+        /// <summary>
+        /// Method to log in with Facebook, the method register a new user if the username is not found in the db
+        /// </summary>
+        /// <param name="accessToken">facebooks access token</param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("fbLogin")]
         public async Task<ActionResult<UserDto>> FacebookLogin(string accessToken)
@@ -231,6 +260,12 @@ namespace API.Controllers
             return CreateUserObject(user);
         }
 
+        /// <summary>
+        /// Login method using Github OAuth. The method uses the temp code that Github provides to user.
+        /// The method will try to find the user in the db, if not found a new user is created.A token is returned
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost("githubLogin/{code}")]
         public async Task<ActionResult<UserDto>> GithubLogin(string code)
@@ -287,7 +322,10 @@ namespace API.Controllers
             return accessToken;
         }
 
-
+        /// <summary>
+        /// Method to generate a new token to the user
+        /// </summary>
+        /// <returns></returns>
         [Authorize]
         [HttpPost("refreshToken")]
         public async Task<ActionResult<UserDto>> RefreshToken()
