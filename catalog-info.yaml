@@ -4,6 +4,7 @@ metadata:
   name: EventPartner
   annotations:
     github.com/project-slug: NoahMaktabi/EventPartner
+    backstage.io/techdocs-ref: value
 spec:
   type: other
   lifecycle: unknown
